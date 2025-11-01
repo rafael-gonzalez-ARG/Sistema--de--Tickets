@@ -1,0 +1,52 @@
+.quick-ticket-section {
+    padding: 80px 20px;
+    background-color: #f4f6f9;
+}
+
+.quick-ticket-section .section-title {
+    margin-bottom: 40px;
+    color: #c62828; /* Rojo para destacar la urgencia */
+}
+
+.emergency-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-top: 8px solid #dc3545; /* Borde de emergencia */
+}
+
+.warning-text {
+    background-color: #fff3cd; /* Amarillo claro */
+    color: #856404; /* Texto marrón */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+.quick-form .form-group label {
+    color: #dc3545; /* Etiquetas rojas */
+}
+
+.quick-submit-button {
+    width: 100%;
+    background-color: #dc3545; /* Rojo fuerte */
+    color: white;
+    padding: 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+.quick-submit-button:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}

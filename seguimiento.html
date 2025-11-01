@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Seguimiento de Tickets | SoporteTech</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="seguimiento.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">🛠️ SoporteTech</div>
+            <nav>
+                <ul class="nav">
+                    <li><a href="index.html#inicio">Inicio</a></li>
+                    <li><a href="index.html#servicios">Servicios</a></li>
+                    <li><a href="index.html#crear-ticket">Crear Ticket</a></li>
+                    <li><a href="index.html#mis-tickets">Mis Tickets</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="tracking-section">
+        <div class="container">
+            <h2 class="section-title">📋 Seguimiento de Mis Tickets</h2>
+            <p class="intro-text">
+                Aquí puedes ver el estado de todos los tickets que has enviado. Usa la funcionalidad de comentarios para añadir más detalles.
+            </p>
+
+            <div class="email-filter-box">
+                <label for="filterEmail">Mostrar tickets para el correo:</label>
+                <input type="email" id="filterEmail" placeholder="Ingresa tu correo para filtrar" class="email-input">
+                <button onclick="filterTicketsByEmail()" class="filter-button">Filtrar</button>
+            </div>
+
+            <ul id="filteredTicketsList" class="tickets-list">
+                </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
+        <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
+    </footer>
+
+    <script src="seguimiento.js"></script>
+</body>
+</html>

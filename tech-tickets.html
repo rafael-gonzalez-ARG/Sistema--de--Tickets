@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Gestión de Tickets - SoporteTech</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">🛠️ SoporteTech</div>
+            <nav>
+                <ul class="nav">
+                    <li><a href="index.html#inicio">Inicio</a></li>
+                    <li><a href="tech-dashboard.html">Dashboard</a></li>
+                    <li><a href="tech-tickets.html">Todos los Tickets</a></li>
+                    <li><a href="#" onclick="handleLogout()">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="tech-dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h2>📋 Todos los Tickets del Sistema</h2>
+                <div>
+                    <button onclick="ticketDB.syncWithUserTickets(); loadTickets();" class="btn-toggle">
+                        🔄 Sincronizar
+                    </button>
+                    <button onclick="exportTickets()" class="btn-toggle" style="margin-left: 10px;">
+                        📤 Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-container" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <label><strong>Estado:</strong></label>
+                        <select id="filterEstado" onchange="loadTickets()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Todos</option>
+                            <option value="Abierto">Abierto</option>
+                            <option value="Cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label><strong>Prioridad:</strong></label>
+                        <select id="filterPrioridad" onchange="loadTickets()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Todas</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Media">Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label><strong>Técnico:</strong></label>
+                        <select id="filterTecnico" onchange="loadTickets()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Todos</option>
+                            <option value="Sin asignar">Sin asignar</option>
+                            <option value="Emmanuel Pilco">Emmanuel Pilco</option>
+                            <option value="Rodrigo Tapia">Rodrigo Tapia</option>
+                            <option value="Naobi Fernandez">Naobi Fernandez</option>
+                            <option value="Rafael Gonzalez">Rafael Gonzalez</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <ul id="allTicketsList" class="tickets-list">
+                <!-- Tickets se cargarán aquí -->
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
+        <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
+    </footer>
+
+    <script src="login.js"></script>
+    <script src="database.js"></script>
+    <script>
+        // Funcionalidad para la página de todos los tickets
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!requireAuth()) return;
+            ticketDB.syncWithUserTickets();
+            loadTickets();
+        });
+
+        function loadTickets() {
+            const estado = document.getElementById('filterEstado').value;
+            const prioridad = document.getElementById('filterPrioridad').value;
+            const tecnico = document.getElementById('filterTecnico').value;
+
+            let tickets = ticketDB.getAllTickets();
+
+            // Aplicar filtros
+            if (estado) {
+                tickets = tickets.filter(t => t.estado === estado);
+            }
+            if (prioridad) {
+                tickets = tickets.filter(t => t.prioridad === prioridad);
+            }
+            if (tecnico) {
+                if (tecnico === 'Sin asignar') {
+                    tickets = tickets.filter(t => !t.tecnico || t.tecnico === 'Sin Asignar');
+                } else {
+                    tickets = tickets.filter(t => t.tecnico === tecnico);
+                }
+            }
+
+            renderAllTickets(tickets);
+        }
+
+        function renderAllTickets(tickets) {
+            const ticketsList = document.getElementById('allTicketsList');
+            
+            if (tickets.length === 0) {
+                ticketsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No se encontraron tickets</h3>
+                        <p>Intenta con otros filtros o sincroniza los datos</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ticketsList.innerHTML = '';
+            
+            [...tickets].reverse().forEach(ticket => {
+                const li = document.createElement('li');
+                li.className = 'ticket-item';
+                
+                const prioridadColor = {
+                    'Alta': '#dc3545',
+                    'Media': '#ffc107',
+                    'Baja': '#28a745'
+                }[ticket.prioridad] || '#6c757d';
+
+                li.innerHTML = `
+                    <div class="ticket-header">
+                        <div class="ticket-title">Ticket #${ticket.id} - ${ticket.asunto}</div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span style="background: ${prioridadColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em;">
+                                ${ticket.prioridad}
+                            </span>
+                            <div class="ticket-status ${ticket.estado.toLowerCase()}">${ticket.estado}</div>
+                        </div>
+                    </div>
+                    <div class="ticket-meta">
+                        👤 ${ticket.nombre} | 📧 ${ticket.email} | 📅 ${ticket.fecha}
+                        <span class="ticket-assignee">🛠️ ${ticket.tecnico || 'Sin asignar'}</span>
+                    </div>
+                    <div class="ticket-message">${ticket.mensaje}</div>
+                    <div class="ticket-actions">
+                    <button class="btn-toggle" onclick="assignTicket(${ticket.id})">Asignar</button>
+                    <button class="btn-toggle" onclick="updateStatus(${ticket.id}, '${ticket.estado}')">
+                        ${ticket.estado === 'Abierto' ? 'Cerrar' : 'Reabrir'}
+                    </button>
+                    <button class="btn-comment" onclick="quickComment(${ticket.id})">💬 Comentar</button>
+                </div>
+                `;
+                ticketsList.appendChild(li);
+            });
+        }
+
+        function quickComment(ticketId) {
+                const comentario = prompt('Escribe tu comentario para el usuario:');
+                if (comentario && comentario.trim()) {
+                    const username = localStorage.getItem('techUsername') || 'Técnico';
+                    const userEmail = username.toLowerCase().replace(' ', '.') + '@soporte.com';
+                    
+                    if (ticketDB.addTechComment(ticketId, comentario, userEmail, false)) {
+                        alert('✅ Comentario enviado al usuario');
+                        loadTickets();
+                    }
+                }
+            }
+
+        function assignTicket(ticketId) {
+            const tecnico = prompt('Asignar a técnico:\n(Emmanuel Pilco, Rodrigo Tapia, Naobi Fernandez, Rafael Gonzalez)');
+            if (tecnico && ticketDB.tecnicos.includes(tecnico)) {
+                const userEmail = tecnico.toLowerCase().replace(' ', '.') + '@soporte.com';
+                if (ticketDB.assignTicket(ticketId, tecnico, userEmail)) {
+                    alert(`✅ Ticket asignado a ${tecnico}`);
+                    loadTickets();
+                }
+            } else if (tecnico) {
+                alert('❌ Técnico no válido');
+            }
+        }
+
+        function updateStatus(ticketId, estadoActual) {
+            const userEmail = localStorage.getItem('techUsername') ? 
+                localStorage.getItem('techUsername').toLowerCase().replace(' ', '.') + '@soporte.com' : '';
+            
+            const nuevoEstado = estadoActual === 'Abierto' ? 'Cerrado' : 'Abierto';
+            
+            if (ticketDB.updateTicketStatus(ticketId, nuevoEstado, userEmail)) {
+                loadTickets();
+            }
+        }
+
+        function viewDetails(ticketId) {
+            window.location.href = `tech-ticket-detail.html?id=${ticketId}`;
+        }
+
+        function exportTickets() {
+            const tickets = ticketDB.getAllTickets();
+            const dataStr = JSON.stringify(tickets, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `tickets_soporte_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Iniciar Sesión - SoporteTech</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">🛠️ SoporteTech</div>
+            <nav>
+                <ul class="nav">
+                    <li><a href="index.html#inicio">Inicio</a></li>
+                    <li><a href="index.html#servicios">Servicios</a></li>
+                    <li><a href="index.html#crear-ticket">Crear Ticket</a></li>
+                    <li><a href="index.html#mis-tickets">Mis Tickets</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="login-section">
+        <div class="container">
+            <div class="login-container">
+                <h2 class="section-title">🔐 Acceso Técnicos</h2>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" id="username" placeholder="Ingresa tu usuario" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" placeholder="Ingresa tu contraseña" required />
+                    </div>
+
+                    <button type="submit" class="login-button">Iniciar Sesión</button>
+                    
+                    <div class="login-info">
+                        <p><strong>Credenciales de prueba:</strong></p>
+                        <p>Usuario: <code>admin</code></p>
+                        <p>Contraseña: <code>matebit2025</code></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
+        <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
+    </footer>
+
+    <script src="login.js"></script>
+</body>
+</html>

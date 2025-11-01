@@ -1,0 +1,116 @@
+.knowledge-section {
+    padding: 80px 20px;
+    background-color: #f4f6f9;
+}
+
+.knowledge-section .section-title {
+    margin-bottom: 30px;
+}
+
+.intro-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* Estilo para la barra de búsqueda */
+.search-box {
+    display: flex;
+    max-width: 700px;
+    margin: 0 auto 50px auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding: 15px 20px;
+    border: none;
+    font-size: 1.1em;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.search-button {
+    background-color: #0066cc;
+    color: white;
+    padding: 15px 25px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.search-button:hover {
+    background-color: #004c99;
+}
+
+/* Estilos de las Categorías */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.category-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    border-top: 4px solid #0066cc;
+    transition: box-shadow 0.2s;
+}
+
+.category-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.category-card h3 {
+    color: #003366;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+
+.guide-list {
+    list-style: none;
+    padding: 0;
+}
+
+.guide-list li {
+    margin-bottom: 15px;
+    padding-left: 0;
+    font-size: 1em;
+}
+
+.guide-list a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    padding: 5px 0;
+    transition: color 0.2s;
+    position: relative;
+    padding-left: 15px;
+}
+
+.guide-list a:before {
+    content: "▸";
+    color: #0066cc;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.guide-list a:hover {
+    color: #0066cc;
+    text-decoration: underline;
+}

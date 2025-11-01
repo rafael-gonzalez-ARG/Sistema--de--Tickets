@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard Técnicos - SoporteTech</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">🛠️ SoporteTech</div>
+            <nav>
+                <ul class="nav">
+                    <li><a href="index.html#inicio">Inicio</a></li>
+                    <li><a href="tech-dashboard.html">Dashboard</a></li>
+                    <li><a href="#" onclick="handleLogout()">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="tech-dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div>
+                        <h3>Bienvenido, <span id="userName">Técnico</span></h3>
+                        <p>Panel de control de soporte técnico</p>
+                    </div>
+                </div>
+                <button class="logout-button" onclick="handleLogout()">🚪 Cerrar Sesión</button>
+            </div>
+
+            <h2 class="section-title">📊 Dashboard de Tickets</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Estadísticas</h3>
+                    <p>Resumen general de tickets: Abiertos, Cerrados y En Proceso</p>
+                    <div class="stats-container" id="statsContainer">
+                        <p>Cargando estadísticas...</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Gestión de Tickets</h3>
+                    <p>Ver y administrar todos los tickets del sistema</p>
+                    <a href="tech-tickets.html" class="btn-service">Gestionar Tickets &rarr;</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Mis Tickets</h3>
+                    <p>Tickets asignados específicamente a ti</p>
+                    <a href="tech-mytickets.html" class="btn-service">Ver Mis Tickets &rarr;</a>
+                </div>
+            </div>
+
+            <div class="tickets-section">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 20px;">
+                    <h3 class="section-title" style="font-size: 1.8em; margin: 0;">Tickets Recientes</h3>
+                    <button onclick="ticketDB.syncWithUserTickets(); loadDashboardData();" class="btn-toggle">
+                        🔄 Sincronizar
+                    </button>
+                </div>
+                <ul id="techTicketsList" class="tickets-list">
+                    <!-- Los tickets se cargarán aquí -->
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
+        <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
+    </footer>
+
+    <script src="login.js"></script>
+    <script src="database.js"></script>
+    <script src="tech-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+.support-section {
+    padding: 80px 20px;
+    background-color: #f4f6f9;
+}
+
+.support-section .section-title {
+    margin-bottom: 30px;
+}
+
+.intro-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px auto;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.team-grid {
+    display: flex;
+    flex-direction: column; /* Contenedores de arriba a abajo */
+    gap: 25px;
+    max-width: 900px; /* Ancho máximo para la columna */
+    margin: 0 auto;
+}
+
+.team-member-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-left: 6px solid #0066cc;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    transition: transform 0.2s;
+}
+
+.team-member-card:hover {
+    transform: translateX(5px);
+}
+
+.member-photo {
+    width: 70px;
+    min-width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #e6f7ff;
+    color: #003366;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    border: 3px solid #0066cc;
+}
+
+.member-info {
+    flex-grow: 1;
+}
+
+.member-name {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 2px;
+}
+
+.member-role {
+    font-size: 1em;
+    color: #0066cc;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.member-description {
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.member-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.member-contact span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comments-history {
+    max-height: 300px; /* Aumenta la altura máxima */
+    overflow-y: auto;
+    background-color: #f8f8f8;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Scroll personalizado para usuarios también */
+.comments-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-history::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.comments-history::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.comments-history::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

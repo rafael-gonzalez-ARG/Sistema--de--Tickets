@@ -1,0 +1,350 @@
+.login-section {
+    padding: 80px 20px;
+    background-color: #f4f6f9;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+}
+
+.login-container {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-top: 6px solid #0066cc;
+}
+
+.login-section .section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #003366;
+    font-size: 2em;
+}
+
+.login-form {
+    margin-bottom: 20px;
+}
+
+.login-form .form-group {
+    margin-bottom: 25px;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #003366;
+    font-size: 1em;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.login-button {
+    width: 100%;
+    background-color: #0066cc;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    background-color: #004c99;
+    transform: translateY(-2px);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.login-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+    margin-top: 30px;
+}
+
+.login-info p {
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.login-info code {
+    background-color: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #dc3545;
+}
+
+/* Estilos para el dashboard de técnicos */
+.tech-dashboard {
+    padding: 40px 20px;
+    background-color: #f4f6f9;
+}
+
+.comments-preview {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    border-left: 3px solid #0066cc;
+}
+
+.comment-preview-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    line-height: 1.3;
+}
+
+.user-comment {
+    background: #e3f2fd;
+    border-left: 2px solid #2196f3;
+}
+
+.tech-comment {
+    background: #fff3e0;
+    border-left: 2px solid #ff9800;
+}
+
+.internal-comment {
+    background: #fce4ec;
+    border-left: 2px solid #e91e63;
+    font-style: italic;
+}
+
+.comment-preview-item .comment-time {
+    font-size: 0.75em;
+    color: #666;
+    float: right;
+}
+
+.no-comments {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+}
+
+.quick-comment-form {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
+}
+
+/* Mejora los botones de acciones */
+.ticket-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-comment {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+    margin-left: auto;
+}
+
+.btn-comment:hover {
+    background-color: #218838;
+}   
+
+.dashboard-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #0066cc;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.logout-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}
+
+.comments-preview {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    border-left: 3px solid #0066cc;
+    max-height: 200px; /* Altura máxima para el chat */
+    overflow-y: auto; /* Scroll vertical */
+}
+
+/* Scroll personalizado */
+.comments-preview::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-preview::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.comments-preview::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.comments-preview::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.comment-preview-item {
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    line-height: 1.3;
+    position: relative;
+}
+
+.user-comment {
+    background: #e3f2fd;
+    border-left: 2px solid #2196f3;
+    margin-right: 10px;
+}
+
+.tech-comment {
+    background: #fff3e0;
+    border-left: 2px solid #ff9800;
+    margin-right: 10px;
+}
+
+.internal-comment {
+    background: #fce4ec;
+    border-left: 2px solid #e91e63;
+    font-style: italic;
+    margin-right: 10px;
+}
+
+.comment-preview-item .comment-time {
+    font-size: 0.75em;
+    color: #666;
+    display: block;
+    text-align: right;
+    margin-top: 4px;
+}
+
+.comment-preview-item .comment-author {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.no-comments {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.quick-comment-form {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+}
+
+/* Indicador de nuevos comentarios */
+.new-comments-indicator {
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+    margin-left: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Botón para expandir chat */
+.expand-chat-btn {
+    background: none;
+    border: none;
+    color: #0066cc;
+    font-size: 0.8em;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+.expand-chat-btn:hover {
+    text-decoration: underline;
+}

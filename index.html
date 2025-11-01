@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="styles.css">
+  <title>SoporteTech - Soporte Técnico Profesional</title>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">🛠️ SoporteTech</div>
+      <nav>
+        <ul class="nav">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#crear-ticket">Crear Ticket</a></li>
+          <li><a href="#mis-tickets">Mis Tickets</a></li>
+          <li><a href="login.html">Acceso Técnicos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="inicio" class="hero">
+    <div class="container">
+      <h1>Soporte Técnico Profesional</h1>
+      <p>Resolvemos tus problemas técnicos de forma rápida y eficiente</p>
+      <button class="cta-button" onclick="document.getElementById('crear-ticket').scrollIntoView({behavior: 'smooth'})">
+        Crear Ticket Ahora
+      </button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="servicios" class="features">
+    <div class="container">
+      <h2 class="section-title">Nuestros Servicios</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📨</div>
+          <h3>Tickets Rápidos</h3>
+          <p>Crea tickets de soporte en segundos y recibe respuestas ágiles de nuestro equipo.</p>
+          <a href="tickets_rapidos.html" class="btn-service">Ir a Alerta Rápida &rarr;</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Seguimiento</h3>
+          <p>Monitorea el estado de todos tus tickets en tiempo real desde un solo lugar.</p>
+          <a href="seguimiento.html" class="btn-service">Ver Mis Tickets &rarr;</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📘</div>
+          <h3>Base de Conocimiento</h3>
+          <p>Accede a guías y tutoriales para resolver problemas comunes por tu cuenta.</p>
+          <a href="conocimiento.html" class="btn-service">Explorar Guías &rarr;</a>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📞</div>
+          <h3>Soporte 24/7</h3>
+          <p>Nuestro equipo está disponible las 24 horas para ayudarte cuando lo necesites.</p>
+          <a href="soporte.html" class="btn-service">Contactar Equipo &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section id="crear-ticket" class="form-section">
+    <div class="container">
+      <h2 class="section-title">Crear Nuevo Ticket</h2>
+      <div class="form-container">
+        <form id="ticketForm">
+          <div class="form-group">
+            <label for="nombre">Nombre Completo</label>
+            <input type="text" id="nombre" placeholder="Ingresa tu nombre" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" placeholder="tu@email.com" required />
+          </div>
+
+          <div class="form-group">
+            <label for="asunto">Asunto</label>
+            <input type="text" id="asunto" placeholder="Breve descripción del problema" required />
+          </div>
+
+          <div class="form-group">
+            <label for="mensaje">Descripción Detallada</label>
+            <textarea id="mensaje" rows="6" placeholder="Describe tu problema con el mayor detalle posible..." required></textarea>
+          </div>
+
+          <button type="submit" class="submit-button">Enviar Ticket</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tickets Section -->
+  <section id="mis-tickets" class="tickets-section">
+    <div class="container">
+      <h2 class="section-title">Mis Tickets</h2>
+      <ul id="ticketsList" class="tickets-list"></ul>
+      <div style="text-align: center;">
+        <button id="clearAllBtn" class="btn-clear" style="display: none;">
+          Eliminar Todos los Tickets
+        </button>
+        <p style="margin-top: 20px;"><a href="seguimiento.html" style="color: #0066cc; font-weight: bold;">Ver historial y comentarios completos en Seguimiento &rarr;</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
+    <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
+  </footer>
+
+ <script src="script.js"></script>
+</body>
+</html>
