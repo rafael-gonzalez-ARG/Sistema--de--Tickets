@@ -24,19 +24,18 @@
 
     <section class="tracking-section">
         <div class="container">
-            <h2 class="section-title">📋 Seguimiento de Mis Tickets</h2>
-            <p class="intro-text">
+            <h2 class="section-title" id="pageTitle">📋 Seguimiento de Mis Tickets</h2>
+            <p class="intro-text" id="introText">
                 Aquí puedes ver el estado de todos los tickets que has enviado. Usa la funcionalidad de comentarios para añadir más detalles.
             </p>
 
-            <div class="email-filter-box">
+            <div class="email-filter-box" id="emailFilterBox">
                 <label for="filterEmail">Mostrar tickets para el correo:</label>
                 <input type="email" id="filterEmail" placeholder="Ingresa tu correo para filtrar" class="email-input">
                 <button onclick="filterTicketsByEmail()" class="filter-button">Filtrar</button>
             </div>
 
-            <ul id="filteredTicketsList" class="tickets-list">
-                </ul>
+            <ul id="filteredTicketsList" class="tickets-list"></ul>
         </div>
     </section>
 
@@ -44,7 +43,432 @@
         <p>&copy; 2025 SoporteTech. Todos los derechos reservados.</p>
         <p><a href="#">Política de Privacidad</a> | <a href="#">Términos de Servicio</a></p>
     </footer>
+     <script src="firebase-app.js"></script>
+<script>
+// 🔥 CARGAR DIRECTAMENTE DESDE FIREBASE
+let allTickets = [];
 
-    <script src="seguimiento.js"></script>
+// 🔥 ESPERAR A QUE FIREBASE ESTÉ COMPLETAMENTE LISTO
+async function waitForFirebase() {
+    console.log('⏳ Esperando Firebase...');
+    console.log('🔍 Estado actual:', {
+        'firebaseApp existe': !!window.firebaseApp,
+        'firebaseApp.initialized': window.firebaseApp?.initialized,
+        'Firebase SDK': typeof firebase
+    });
+    
+    // Si ya está listo, genial
+    if (window.firebaseApp && window.firebaseApp.initialized) {
+        console.log('✅ Firebase ya está listo');
+        return true;
+    }
+    
+    // Esperar a que firebase-app.js termine de ejecutarse
+    let firebaseLoaded = false;
+    for (let i = 0; i < 50; i++) {
+        if (window.firebaseApp && window.firebaseApp.initialized) {
+            firebaseLoaded = true;
+            break;
+        }
+        
+        // Verificar si los scripts de Firebase se están cargando
+        const firebaseScripts = Array.from(document.scripts);
+        const isFirebaseLoading = firebaseScripts.some(script => 
+            script.src.includes('firebase') && !script.onload
+        );
+        
+        if (!isFirebaseLoading && typeof firebase !== 'undefined') {
+            console.log('✅ Scripts de Firebase cargados, esperando inicialización...');
+            break;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    
+    // Si después de 10 segundos no está listo, intentar inicializar manualmente
+    if (!firebaseLoaded) {
+        console.log('🔄 Firebase no se inicializó automáticamente, intentando manualmente...');
+        
+        if (typeof firebase !== 'undefined' && !window.firebaseApp) {
+            console.log('🔧 Firebase SDK está cargado pero no inicializado');
+            // Esperar un poco más para que firebase-app.js haga su trabajo
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+    }
+    
+    const finalCheck = window.firebaseApp && window.firebaseApp.initialized;
+    console.log('🏁 Estado final de Firebase:', finalCheck ? '✅ LISTO' : '❌ FALLÓ');
+    return finalCheck;
+}
+
+// Obtener el ID del ticket desde la URL
+function getTicketIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('ticket');
+}
+
+// 🔥 CARGAR TICKET ESPECÍFICO DESDE FIREBASE
+async function loadSpecificTicket() {
+    const ticketId = getTicketIdFromURL();
+    
+    if (ticketId) {
+        console.log('🎯 Cargando ticket específico:', ticketId);
+        
+        // OCULTAR filtro de email
+        document.getElementById('emailFilterBox').style.display = 'none';
+        document.getElementById('introText').style.display = 'none';
+        document.getElementById('pageTitle').textContent = '📋 Detalles del Ticket';
+        
+        // Cargar ticket directamente desde Firebase
+        const ticket = await loadTicketFromFirebase(ticketId);
+        
+        if (ticket) {
+            renderSpecificTicket(ticket);
+        } else {
+            document.getElementById('filteredTicketsList').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>Ticket no encontrado</h3>
+                    <p>El ticket #${ticketId} no existe en la base de datos</p>
+                    <a href="seguimiento.html" class="btn-toggle">Ver todos los tickets</a>
+                </div>
+            `;
+        }
+    } else {
+        // Modo normal (filtro por email)
+        console.log('📧 Modo normal: filtro por email');
+        await loadAllTicketsFromFirebase();
+    }
+}
+
+// 🔥 CARGAR TICKET ESPECÍFICO DESDE FIREBASE
+async function loadTicketFromFirebase(ticketId) {
+    console.log('🔥 Buscando ticket en Firebase:', ticketId);
+    
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        console.log('❌ Firebase no está disponible');
+        return null;
+    }
+    
+    try {
+        // Cargar directamente desde Firestore
+        const doc = await window.firebaseApp.db.collection('tickets').doc(ticketId).get();
+        
+        if (doc.exists) {
+            const ticketData = doc.data();
+            console.log('✅ Ticket encontrado en Firebase:', ticketData);
+            return {
+                id: doc.id,
+                ...ticketData,
+                comentarios: ticketData.comentarios || [],
+                adjuntos: ticketData.adjuntos || []
+            };
+        } else {
+            console.log('❌ Ticket no existe en Firebase');
+            return null;
+        }
+    } catch (error) {
+        console.error('💥 Error cargando ticket de Firebase:', error);
+        return null;
+    }
+}
+
+// 🔥 CARGAR TODOS LOS TICKETS DESDE FIREBASE
+async function loadAllTicketsFromFirebase() {
+    console.log('🔥 Cargando todos los tickets desde Firebase...');
+    
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        console.log('❌ Firebase no disponible, mostrando mensaje');
+        showFirebaseError();
+        return;
+    }
+    
+    try {
+        const snapshot = await window.firebaseApp.db.collection('tickets')
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        allTickets = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            allTickets.push({
+                id: doc.id,
+                ...data,
+                comentarios: data.comentarios || [],
+                adjuntos: data.adjuntos || []
+            });
+        });
+        
+        console.log(`✅ ${allTickets.length} tickets cargados de Firebase`);
+        renderFilteredTickets(''); // Mostrar mensaje de ingreso de email
+        
+    } catch (error) {
+        console.error('💥 Error cargando tickets:', error);
+        showFirebaseError();
+    }
+}
+
+// 🔥 MOSTRAR ERROR DE FIREBASE
+function showFirebaseError() {
+    document.getElementById('filteredTicketsList').innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">🔧</div>
+            <h3>Base de datos no disponible</h3>
+            <p>No se pudieron cargar los tickets. Intenta recargar la página.</p>
+            <button onclick="location.reload()" class="btn-toggle">🔄 Recargar</button>
+        </div>
+    `;
+}
+
+// 🔥 RENDERIZAR TICKET ESPECÍFICO
+function renderSpecificTicket(ticket) {
+    const ticketsList = document.getElementById('filteredTicketsList');
+    
+    console.log('🎨 Renderizando ticket:', ticket);
+    
+    const commentsHtml = ticket.comentarios ? ticket.comentarios.map(comentario => `
+        <div class="comment-item ${getCommentClassForUser(comentario, ticket)}">
+            <div class="comment-header">
+                <strong>${getCommentIconForUser(comentario)} ${comentario.autor}</strong>
+                <span class="comment-time">${comentario.fecha}</span>
+            </div>
+            <div class="comment-text">${comentario.texto}</div>
+        </div>
+    `).join('') : '<div class="no-comments">No hay comentarios aún.</div>';
+
+    ticketsList.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="seguimiento.html" class="btn-toggle">← Volver a todos los tickets</a>
+        </div>
+        
+        <li class="ticket-item" style="border-left: 5px solid #0066cc;">
+            <div class="ticket-header">
+                <div class="ticket-title">Ticket #${ticket.id} - ${ticket.asunto}</div>
+                <div class="ticket-status ${ticket.estado.toLowerCase()}">${ticket.estado}</div>
+            </div>
+            <div class="ticket-meta">
+                👤 <strong>${ticket.nombre}</strong> | 📧 ${ticket.email} | 📅 ${ticket.fecha}
+                <span class="ticket-assignee">🛠️ Asignado: ${ticket.tecnico || 'Sin Asignar'}</span>
+            </div>
+            
+            <div class="ticket-description">
+                <h4>📝 Descripción del Problema:</h4>
+                <p>${ticket.mensaje}</p>
+            </div>
+
+            <!-- 🔥 HISTORIAL DE CHAT COMPLETO -->
+            <div class="chat-section">
+                <h4>💬 Historial de Conversación (${ticket.comentarios ? ticket.comentarios.length : 0} mensajes)</h4>
+                <div class="chat-container" id="chat-${ticket.id}">
+                    ${commentsHtml}
+                </div>
+                
+                <!-- FORMULARIO PARA AGREGAR COMENTARIOS -->
+                <div class="chat-input-section">
+                    <h5>✍️ Agregar comentario:</h5>
+                    <form class="comment-form" onsubmit="addCommentToTicket(event, '${ticket.id}')">
+                        <textarea 
+                            placeholder="Escribe tu comentario o pregunta para el equipo de soporte..." 
+                            rows="3"
+                            required
+                            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px;"
+                        ></textarea>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-comment">📨 Enviar Comentario</button>
+                            <button type="button" class="btn-toggle" onclick="toggleEstado('${ticket.id}')">
+                                ${ticket.estado === 'Abierto' ? '🔒 Cerrar Ticket' : '🔓 Reabrir Ticket'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </li>
+    `;
+    
+    // Auto-scroll al final del chat
+    setTimeout(() => {
+        const chatContainer = document.getElementById(`chat-${ticket.id}`);
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }, 100);
+}
+
+// 🔥 FUNCIONES AUXILIARES (mantener las mismas)
+function getCommentClassForUser(comentario, ticket) {
+    if (comentario.autor === ticket.nombre) return 'comment-user';
+    if (comentario.autor === 'Sistema') return 'comment-system';
+    return 'comment-support';
+}
+
+function getCommentIconForUser(comentario) {
+    if (comentario.autor === 'Sistema') return '⚙️';
+    if (comentario.tipo === 'tecnico' || comentario.tipo === 'interno') return '🛠️';
+    return '👤';
+}
+
+// 🔥 AGREGAR COMENTARIO DIRECTAMENTE A FIREBASE
+async function addCommentToTicket(e, ticketId) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const textarea = form.querySelector('textarea');
+    const commentText = textarea.value.trim();
+    
+    if (!commentText) {
+        alert('Por favor, escribe un comentario antes de enviar.');
+        return;
+    }
+    
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        alert('Error: Base de datos no disponible');
+        return;
+    }
+    
+    // Cargar ticket actual para obtener información del usuario
+    const ticket = await loadTicketFromFirebase(ticketId);
+    if (!ticket) {
+        alert('Error: Ticket no encontrado');
+        return;
+    }
+    
+    const comment = {
+        autor: ticket.nombre,
+        texto: commentText,
+        fecha: new Date().toLocaleString('es-ES'),
+        tipo: 'usuario',
+        email: ticket.email
+    };
+    
+    try {
+        // Agregar comentario al ticket en Firebase
+        const ticketRef = window.firebaseApp.db.collection('tickets').doc(ticketId);
+        await ticketRef.update({
+            comentarios: [...(ticket.comentarios || []), comment],
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log('✅ Comentario agregado a Firebase');
+        textarea.value = '';
+        
+        // Recargar el ticket para mostrar el nuevo comentario
+        loadSpecificTicket();
+        
+    } catch (error) {
+        console.error('❌ Error agregando comentario:', error);
+        alert('Error al enviar el comentario');
+    }
+}
+
+// 🔥 TOGGLE ESTADO EN FIREBASE
+async function toggleEstado(ticketId) {
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        alert('Error: Base de datos no disponible');
+        return;
+    }
+    
+    try {
+        const ticket = await loadTicketFromFirebase(ticketId);
+        if (!ticket) {
+            alert('Error: Ticket no encontrado');
+            return;
+        }
+        
+        const nuevoEstado = ticket.estado === 'Abierto' ? 'Cerrado' : 'Abierto';
+        const nuevoComentario = {
+            autor: 'Sistema',
+            texto: `Estado cambiado a ${nuevoEstado}.`,
+            fecha: new Date().toLocaleString('es-ES'),
+            tipo: 'sistema'
+        };
+        
+        const ticketRef = window.firebaseApp.db.collection('tickets').doc(ticketId);
+        await ticketRef.update({
+            estado: nuevoEstado,
+            comentarios: [...(ticket.comentarios || []), nuevoComentario],
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log('✅ Estado actualizado en Firebase');
+        
+        // Recargar el ticket
+        loadSpecificTicket();
+        
+    } catch (error) {
+        console.error('❌ Error actualizando estado:', error);
+        alert('Error al cambiar el estado del ticket');
+    }
+}
+
+// 🔥 MODO NORMAL (filtro por email)
+function filterTicketsByEmail() {
+    const email = document.getElementById('filterEmail').value.trim();
+    renderFilteredTickets(email);
+}
+
+function renderFilteredTickets(emailToFilter) {
+    const ticketsList = document.getElementById('filteredTicketsList');
+    ticketsList.innerHTML = '';
+    
+    const filteredTickets = emailToFilter 
+        ? allTickets.filter(t => t.email.toLowerCase() === emailToFilter.toLowerCase())
+        : [];
+        
+    if (filteredTickets.length === 0 && emailToFilter) {
+        ticketsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🧐</div>
+                <h3>No se encontraron tickets</h3>
+                <p>Verifica el correo electrónico ingresado</p>
+            </div>
+        `;
+        return;
+    } else if (!emailToFilter) {
+        ticketsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📧</div>
+                <h3>Ingresa tu correo</h3>
+                <p>Para ver el historial de tus tickets, ingresa tu dirección de correo electrónico</p>
+            </div>
+        `;
+        return;
+    }
+
+    filteredTickets.reverse().forEach(ticket => {
+        const li = document.createElement('li');
+        li.className = 'ticket-item';
+        
+        li.innerHTML = `
+            <div class="ticket-header">
+                <div class="ticket-title">Ticket #${ticket.id} - ${ticket.asunto}</div>
+                <div class="ticket-status ${ticket.estado.toLowerCase()}">${ticket.estado}</div>
+            </div>
+            <div class="ticket-meta">
+                👤 ${ticket.nombre} | 📅 ${ticket.fecha}
+                <span class="ticket-assignee">🛠️ Asignado: ${ticket.tecnico}</span>
+            </div>
+            <div class="ticket-message">${ticket.mensaje.substring(0, 100)}${ticket.mensaje.length > 100 ? '...' : ''}</div>
+            <div class="ticket-actions">
+                <a href="seguimiento.html?ticket=${ticket.id}" class="btn-toggle">Ver Detalles Completos</a>
+                <button class="btn-toggle" onclick="toggleEstado('${ticket.id}')">
+                    Marcar como ${ticket.estado === 'Abierto' ? 'Cerrado' : 'Abierto'}
+                </button>
+            </div>
+        `;
+        ticketsList.appendChild(li);
+    });
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Iniciando seguimiento.html');
+    
+    // Esperar 1 segundo antes de empezar para dar tiempo a Firebase
+    setTimeout(async () => {
+        console.log('🕐 Iniciando después de delay...');
+        await loadSpecificTicket();
+    }, 1000);
+});
+</script>
 </body>
 </html>

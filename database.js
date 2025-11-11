@@ -37,7 +37,7 @@ class TicketDB {
                 ...ticket,
                 tecnico_email: '', // Correo del técnico asignado
                 prioridad: 'Media', // Alta, Media, Baja
-                categoria: 'General', // Software, Hardware, Redes, etc.
+                categoria: 'General', // Software, Hardware, Redes
                 tiempo_estimado: '', // Tiempo estimado de resolución
                 fecha_cierre: '', // Fecha cuando se cierra el ticket
                 notas_tecnicas: '' // Notas internas del técnico

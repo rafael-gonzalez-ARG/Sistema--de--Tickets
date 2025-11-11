@@ -1,49 +1,144 @@
-// Dashboard functionality for technicians
+// tech-dashboard.js - VERSIÓN CON TIEMPO REAL
+let currentTickets = [];
+let realTimeListener = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     if (!requireAuth()) return;
     
-    // Sincronizar base de datos al cargar
-    ticketDB.syncWithUserTickets();
-    
-    // Mostrar información del usuario
     const username = localStorage.getItem('techUsername') || 'Técnico';
     document.getElementById('userName').textContent = username;
     document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
     
     loadDashboardData();
+    setupRealTimeUpdates(); // 🔥 NUEVO: Escuchar cambios en tiempo real
 });
 
-function loadDashboardData() {
-    // Cargar estadísticas desde la base de datos
-    const stats = ticketDB.getStats();
+// 🔥 CONFIGURAR ACTUALIZACIONES EN TIEMPO REAL
+function setupRealTimeUpdates() {
+    console.log('🔄 Configurando escucha en tiempo real...');
     
-    // Mostrar estadísticas generales
-    const statsContainer = document.getElementById('statsContainer');
-    statsContainer.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-            <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 1.5em; font-weight: bold; color: #1976d2;">${stats.total}</div>
-                <div style="font-size: 0.8em;">Total</div>
-            </div>
-            <div style="background: #fff3e0; padding: 10px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 1.5em; font-weight: bold; color: #f57c00;">${stats.abiertos}</div>
-                <div style="font-size: 0.8em;">Abiertos</div>
-            </div>
-            <div style="background: #e8f5e8; padding: 10px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 1.5em; font-weight: bold; color: #388e3c;">${stats.cerrados}</div>
-                <div style="font-size: 0.8em;">Cerrados</div>
-            </div>
-            <div style="background: #fce4ec; padding: 10px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 1.5em; font-weight: bold; color: #c2185b;">${stats.enProceso}</div>
-                <div style="font-size: 0.8em;">En Proceso</div>
-            </div>
-        </div>
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        console.log('❌ Firebase no disponible para tiempo real');
+        // Reintentar en 5 segundos
+        setTimeout(setupRealTimeUpdates, 5000);
+        return;
+    }
+    
+    // Detener listener anterior si existe
+    if (realTimeListener) {
+        realTimeListener();
+    }
+    
+    try {
+        // Escuchar cambios en la colección de tickets
+        realTimeListener = window.firebaseApp.db.collection('tickets')
+            .orderBy('updatedAt', 'desc')
+            .onSnapshot((snapshot) => {
+                console.log('🔄 Cambios detectados en Firestore');
+                
+                currentTickets = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    currentTickets.push({
+                        id: doc.id,
+                        ...data,
+                        comentarios: data.comentarios || [],
+                        adjuntos: data.adjuntos || []
+                    });
+                });
+                
+                // Actualizar estadísticas
+                updateStats(currentTickets);
+                
+                // Actualizar lista de tickets
+                renderRecentTickets(currentTickets);
+                
+            }, (error) => {
+                console.error('❌ Error en escucha tiempo real:', error);
+                // Reintentar en caso de error
+                setTimeout(setupRealTimeUpdates, 5000);
+            });
+            
+        console.log('✅ Escucha en tiempo real activada');
         
-        ${renderTechStats(stats.porTecnico)}
-    `;
+    } catch (error) {
+        console.error('💥 Error configurando tiempo real:', error);
+    }
+}
+
+// 🔥 ACTUALIZAR ESTADÍSTICAS EN TIEMPO REAL
+function updateStats(tickets) {
+    const total = tickets.length;
+    const abiertos = tickets.filter(t => t.estado === 'Abierto').length;
+    const cerrados = tickets.filter(t => t.estado === 'Cerrado').length;
+    const enProceso = total - abiertos - cerrados;
+
+    const statsContainer = document.getElementById('statsContainer');
+    if (statsContainer) {
+        statsContainer.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <div style="background: #e3f2fd; padding: 10px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #1976d2;">${total}</div>
+                    <div style="font-size: 0.8em;">Total</div>
+                </div>
+                <div style="background: #fff3e0; padding: 10px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #f57c00;">${abiertos}</div>
+                    <div style="font-size: 0.8em;">Abiertos</div>
+                </div>
+                <div style="background: #e8f5e8; padding: 10px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #388e3c;">${cerrados}</div>
+                    <div style="font-size: 0.8em;">Cerrados</div>
+                </div>
+                <div style="background: #fce4ec; padding: 10px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #c2185b;">${enProceso}</div>
+                    <div style="font-size: 0.8em;">En Proceso</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// 🔥 MODIFICAR loadDashboardData para usar Firebase
+async function loadDashboardData() {
+    console.log('📊 Cargando datos del dashboard...');
     
-    // Mostrar tickets recientes
-    renderRecentTickets(ticketDB.getAllTickets());
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        console.log('❌ Firebase no disponible, cargando estático');
+        // Cargar datos estáticos como fallback
+        const stats = ticketDB.getStats();
+        renderRecentTickets(ticketDB.getAllTickets());
+        return;
+    }
+    
+    try {
+        // Cargar tickets iniciales desde Firebase
+        const snapshot = await window.firebaseApp.db.collection('tickets')
+            .orderBy('updatedAt', 'desc')
+            .get();
+        
+        currentTickets = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            currentTickets.push({
+                id: doc.id,
+                ...data,
+                comentarios: data.comentarios || [],
+                adjuntos: data.adjuntos || []
+            });
+        });
+        
+        console.log(`✅ ${currentTickets.length} tickets cargados para dashboard`);
+        
+        // Actualizar UI
+        updateStats(currentTickets);
+        renderRecentTickets(currentTickets);
+        
+    } catch (error) {
+        console.error('❌ Error cargando dashboard:', error);
+        // Fallback a datos locales
+        const stats = ticketDB.getStats();
+        renderRecentTickets(ticketDB.getAllTickets());
+    }
 }
 
 function renderTechStats(statsByTech) {
@@ -101,7 +196,7 @@ function renderRecentTickets(tickets) {
         const todosComentarios = [...ticket.comentarios];
         const comentariosRecientes = [...ticket.comentarios].slice(-6); // Últimos 6 comentarios
         
-        // Contar comentarios no leídos (opcional)
+        // Contar comentarios no leídos
         const comentariosNoLeidos = ticket.comentarios.filter(c => 
             c.tipo === 'usuario' && !c.leido
         ).length;
@@ -158,15 +253,15 @@ function renderRecentTickets(tickets) {
                     style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;"
                 ></textarea>
                 <div class="ticket-actions">
-                    <button class="btn-toggle" onclick="assignToMe(${ticket.id})">Asignarme</button>
-                    <button class="btn-toggle" onclick="quickUpdate(${ticket.id}, '${ticket.estado}')">
-                        ${ticket.estado === 'Abierto' ? 'Cerrar' : 'Reabrir'}
-                    </button>
-                    <button class="btn-comment" onclick="addQuickComment(${ticket.id})">📨 Enviar Respuesta</button>
-                    <button class="btn-toggle" onclick="addInternalNote(${ticket.id})" style="background: #6c757d; border-color: #6c757d;">
-                        📝 Nota Interna
-                    </button>
-                </div>
+    <button class="btn-toggle" onclick="assignToMe('${ticket.id}')">Asignarme</button>
+    <button class="btn-toggle" onclick="quickUpdate('${ticket.id}', '${ticket.estado}')">
+        ${ticket.estado === 'Abierto' ? 'Cerrar' : 'Reabrir'}
+    </button>
+    <button class="btn-comment" onclick="addQuickComment('${ticket.id}')">📨 Enviar Respuesta</button>
+    <button class="btn-toggle" onclick="addInternalNote('${ticket.id}')" style="background: #6c757d; border-color: #6c757d;">
+        📝 Nota Interna
+    </button>
+</div>
             </div>
         `;
         ticketsList.appendChild(li);
@@ -214,7 +309,7 @@ function formatTime(fechaString) {
     });
 }
 
-// Función para expandir/contraer chat (modal simple)
+// Función para expandir/contraer chat 
 function toggleFullChat(ticketId) {
     const ticket = ticketDB.getAllTickets().find(t => t.id === ticketId);
     if (!ticket) return;
@@ -240,11 +335,10 @@ function toggleFullChat(ticketId) {
                 </div>
                 <div>
                     <textarea 
-                        id="modal-comment-${ticketId}" 
-                        placeholder="Escribe una respuesta..." 
-                        rows="3"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em;"
-                    ></textarea>
+    id="comment-${ticket.id.replace(/[^a-zA-Z0-9]/g, '_')}" 
+    placeholder="Escribe una respuesta para ${ticket.nombre}..." 
+    rows="2"
+></textarea>
                     <button onclick="addCommentFromModal(${ticketId})" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">📨 Enviar</button>
                     <button onclick="addInternalNoteFromModal(${ticketId})" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">📝 Nota Interna</button>
                 </div>
@@ -314,7 +408,7 @@ function addInternalNoteFromModal(ticketId) {
     }
 }
 
-function addQuickComment(ticketId) {
+async function addQuickComment(ticketId) {
     const textarea = document.getElementById(`comment-${ticketId}`);
     const comentario = textarea.value.trim();
     
@@ -326,59 +420,139 @@ function addQuickComment(ticketId) {
     const username = localStorage.getItem('techUsername') || 'Técnico';
     const userEmail = username.toLowerCase().replace(' ', '.') + '@soporte.com';
     
-    if (ticketDB.addTechComment(ticketId, comentario, userEmail, false)) {
-        alert('✅ Comentario enviado al usuario');
-        textarea.value = ''; // Limpiar textarea
-        loadDashboardData(); // Recargar para mostrar el nuevo comentario
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        alert('Error: Base de datos no disponible');
+        return;
+    }
+    
+    try {
+        // Obtener ticket actual
+        const ticketDoc = await window.firebaseApp.db.collection('tickets').doc(ticketId).get();
+        if (!ticketDoc.exists) {
+            alert('Error: Ticket no encontrado');
+            return;
+        }
         
-        // Auto-scroll al final del chat después de agregar comentario
-        setTimeout(() => {
-            const chatContainer = document.getElementById(`chat-${ticketId}`);
-            if (chatContainer) {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        }, 200);
-    } else {
-        alert('❌ Error al enviar el comentario');
+        const ticket = ticketDoc.data();
+        const nuevoComentario = {
+            autor: username,
+            texto: comentario,
+            fecha: new Date().toLocaleString('es-ES'),
+            tipo: 'tecnico',
+            email: userEmail
+        };
+        
+        const comentariosActualizados = [...(ticket.comentarios || []), nuevoComentario];
+        
+        // Actualizar en Firebase
+        await window.firebaseApp.db.collection('tickets').doc(ticketId).update({
+            comentarios: comentariosActualizados,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log('✅ Comentario enviado en tiempo real');
+        textarea.value = ''; // Limpiar textarea
+        
+        // NO necesitas recargar manualmente - el listener en tiempo real se encargará
+        
+    } catch (error) {
+        console.error('❌ Error enviando comentario:', error);
+        alert('Error al enviar el comentario');
     }
 }
 
-function addInternalNote(ticketId) {
+// 🔥 ACTUALIZAR addInternalNote para tiempo real
+async function addInternalNote(ticketId) {
     const nota = prompt('Escribe una nota interna para el equipo técnico:');
     if (nota && nota.trim()) {
         const username = localStorage.getItem('techUsername') || 'Técnico';
         const userEmail = username.toLowerCase().replace(' ', '.') + '@soporte.com';
         
-        if (ticketDB.addTechComment(ticketId, nota, userEmail, true)) {
-            alert('✅ Nota interna guardada');
-            loadDashboardData();
+        if (!window.firebaseApp || !window.firebaseApp.initialized) {
+            alert('Error: Base de datos no disponible');
+            return;
+        }
+        
+        try {
+            const ticketDoc = await window.firebaseApp.db.collection('tickets').doc(ticketId).get();
+            if (!ticketDoc.exists) {
+                alert('Error: Ticket no encontrado');
+                return;
+            }
+            
+            const ticket = ticketDoc.data();
+            const nuevaNota = {
+                autor: username,
+                texto: `[NOTA INTERNA] ${nota}`,
+                fecha: new Date().toLocaleString('es-ES'),
+                tipo: 'interno',
+                email: userEmail
+            };
+            
+            const comentariosActualizados = [...(ticket.comentarios || []), nuevaNota];
+            
+            await window.firebaseApp.db.collection('tickets').doc(ticketId).update({
+                comentarios: comentariosActualizados,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            console.log('✅ Nota interna guardada en tiempo real');
+            
+        } catch (error) {
+            console.error('❌ Error guardando nota interna:', error);
+            alert('Error al guardar la nota interna');
         }
     }
 }
 
-function assignToMe(ticketId) {
+// 🔥 ACTUALIZAR assignToMe para tiempo real
+async function assignToMe(ticketId) {
     const username = localStorage.getItem('techUsername') || 'Técnico';
     const userEmail = username.toLowerCase().replace(' ', '.') + '@soporte.com';
     
-    if (ticketDB.assignTicket(ticketId, username, userEmail)) {
-        alert(`✅ Ticket asignado a ${username}`);
-        loadDashboardData(); // Recargar datos
-    } else {
-        alert('❌ Error al asignar el ticket');
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        alert('Error: Base de datos no disponible');
+        return;
+    }
+    
+    try {
+        await window.firebaseApp.db.collection('tickets').doc(ticketId).update({
+            tecnico: username,
+            tecnico_email: userEmail,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log(`✅ Ticket asignado a ${username} en tiempo real`);
+        
+    } catch (error) {
+        console.error('❌ Error asignando ticket:', error);
+        alert('Error al asignar el ticket');
     }
 }
 
-function quickUpdate(ticketId, estadoActual) {
+// 🔥 ACTUALIZAR quickUpdate para tiempo real
+async function quickUpdate(ticketId, estadoActual) {
     const userEmail = localStorage.getItem('techUsername') ? 
         localStorage.getItem('techUsername').toLowerCase().replace(' ', '.') + '@soporte.com' : '';
     
     const nuevoEstado = estadoActual === 'Abierto' ? 'Cerrado' : 'Abierto';
     
-    if (ticketDB.updateTicketStatus(ticketId, nuevoEstado, userEmail)) {
-        alert(`✅ Ticket ${nuevoEstado.toLowerCase()} exitosamente`);
-        loadDashboardData(); // Recargar datos
-    } else {
-        alert('❌ Error al actualizar el ticket');
+    if (!window.firebaseApp || !window.firebaseApp.initialized) {
+        alert('Error: Base de datos no disponible');
+        return;
+    }
+    
+    try {
+        await window.firebaseApp.db.collection('tickets').doc(ticketId).update({
+            estado: nuevoEstado,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log(`✅ Estado actualizado a ${nuevoEstado} en tiempo real`);
+        
+    } catch (error) {
+        console.error('❌ Error actualizando estado:', error);
+        alert('Error al actualizar el estado');
     }
 }
 
@@ -386,3 +560,10 @@ function viewTicketDetails(ticketId) {
     // Redirigir a página de detalles del ticket
     window.location.href = `tech-ticket-detail.html?id=${ticketId}`;
 }
+// 🔥 LIMPIAR LISTENER AL CERRAR LA PÁGINA
+window.addEventListener('beforeunload', function() {
+    if (realTimeListener) {
+        realTimeListener();
+        console.log('🧹 Listener de tiempo real limpiado');
+    }
+});

@@ -84,7 +84,6 @@
     <script src="login.js"></script>
     <script src="database.js"></script>
     <script>
-        // Funcionalidad para la página de todos los tickets
         document.addEventListener('DOMContentLoaded', function() {
             if (!requireAuth()) return;
             ticketDB.syncWithUserTickets();
@@ -221,5 +220,6 @@
             link.click();
         }
     </script>
+    <script src="firebase-app.js"></script>
 </body>
 </html>

@@ -60,16 +60,14 @@
     </footer>
 
     <script>
-        // Lógica simple para simular el envío rápido
         document.getElementById('quickTicketForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const nombre = document.getElementById('qr_nombre').value.trim();
             alert(`🚨 Alerta URGENTE enviada por ${nombre}.\nUn técnico te contactará inmediatamente.`);
             
-            // Simulación de envío de un ticket de ALTA PRIORIDAD
-            // En una aplicación real, esto se enviaría a una cola distinta.
             e.target.reset();
         });
     </script>
+    <script src="firebase-app.js"></script>
 </body>
 </html>
