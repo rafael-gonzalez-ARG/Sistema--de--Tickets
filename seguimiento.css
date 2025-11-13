@@ -333,3 +333,125 @@
     font-style: italic;
     padding: 30px;
 }
+
+
+/*ESTILOS PARA SUBIDA DE ARCHIVOS */
+
+.file-input-section {
+    margin-bottom: 15px;
+}
+
+.file-label {
+    display: inline-block;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #495057;
+    font-size: 0.9em;
+}
+
+.file-label:hover {
+    background: #e9ecef;
+    border-color: #0066cc;
+}
+
+.file-input {
+    display: none;
+}
+
+.image-preview {
+    margin-top: 10px;
+    display: none;
+}
+
+.preview-image {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.preview-item {
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+}
+
+.remove-preview {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-info {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #495057;
+}
+
+.file-name {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.file-size {
+    color: #6c757d;
+}
+/* 🔥 ESTILOS PARA ARCHIVOS ADJUNTOS */
+.attached-file {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #0066cc;
+}
+
+.attached-image img {
+    border: 1px solid #ddd;
+    transition: transform 0.2s;
+}
+
+.attached-image img:hover {
+    transform: scale(1.05);
+}
+
+.file-info-small {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.attached-document {
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.file-link {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
